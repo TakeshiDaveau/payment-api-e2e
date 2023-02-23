@@ -1,4 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import {
+  CanActivate,
+  ExecutionContext,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { PaymentIntentService } from './payment-intent.service';
 
 @Injectable()
@@ -8,6 +13,14 @@ export class PaymentIntentExistGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     const paymentIntentId = request.params.paymentIntentId;
-    return !!(await this.paymentIntentService.getOne(paymentIntentId));
+    const paymentIntent = await this.paymentIntentService.getOne(
+      paymentIntentId,
+    );
+    if (!paymentIntent) {
+      throw new NotFoundException(
+        `Payment intent with id ${paymentIntentId} not found`,
+      );
+    }
+    return true;
   }
 }

@@ -1,26 +1,34 @@
 import {
   Body,
   Controller,
-  Delete,
   Get,
   HttpCode,
   Param,
   Post,
   Put,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { PaymentIntentExistGuard } from './payment-intent-exist.guard';
 import { PaymentIntentDto } from './payment-intent.dto';
 import { PaymentIntentService } from './payment-intent.service';
 
-@Controller('payment-intent')
+@UsePipes(
+  new ValidationPipe({
+    forbidNonWhitelisted: true,
+    transform: true,
+  }),
+)
+@Controller('payment_intent')
 export class PaymentIntentController {
   constructor(private readonly paymentIntentService: PaymentIntentService) {}
 
   @Post('')
   @HttpCode(201)
-  @UseGuards(PaymentIntentExistGuard)
-  create(@Body() paymentIntent: PaymentIntentDto): Promise<PaymentIntentDto> {
+  async create(
+    @Body() paymentIntent: PaymentIntentDto,
+  ): Promise<PaymentIntentDto> {
     return this.paymentIntentService.create(paymentIntent);
   }
 
@@ -41,12 +49,5 @@ export class PaymentIntentController {
     @Body() paymentIntent: PaymentIntentDto,
   ): Promise<PaymentIntentDto> {
     return this.paymentIntentService.updateOne(paymentIntentId, paymentIntent);
-  }
-
-  @Delete(':paymentIntentId')
-  @HttpCode(204)
-  @UseGuards(PaymentIntentExistGuard)
-  deleteOne(@Param('paymentIntentId') paymentIntentId: string): Promise<void> {
-    return this.paymentIntentService.deleteOne(paymentIntentId);
   }
 }

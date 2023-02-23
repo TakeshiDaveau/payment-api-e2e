@@ -20,6 +20,7 @@ export class PaymentIntentService {
     await this.#getOneRef(paymentIntentId).set({
       ...paymentIntent,
       id: paymentIntentId,
+      createdAt: Date.now(),
     });
     return this.getOne(paymentIntentId);
   }
@@ -34,10 +35,11 @@ export class PaymentIntentService {
       );
     }
     const ref = this.#getOneRef(paymentIntentId);
-    await ref.update(paymentIntent);
+    await ref.update({ ...paymentIntent });
     return this.getOne(paymentIntentId);
   }
 
+  // Do not use this method as it's not authorized to remove a PaymentIntent
   async deleteOne(paymentIntentId: string): Promise<void> {
     await this.#collection.doc(`${paymentIntentId}`).delete();
   }
