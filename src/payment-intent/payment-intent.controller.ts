@@ -8,6 +8,7 @@ import {
   Put,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBody, ApiOkResponse } from '@nestjs/swagger';
 import { PaymentIntentExistGuard } from './payment-intent-exist.guard';
 import { PaymentIntentDto } from './payment-intent.dto';
 import { PaymentIntentService } from './payment-intent.service';
@@ -17,6 +18,11 @@ export class PaymentIntentController {
   constructor(private readonly paymentIntentService: PaymentIntentService) {}
 
   @Post('')
+  @ApiBody({ type: PaymentIntentDto })
+  @ApiOkResponse({
+    description: 'Payment intent created',
+    type: PaymentIntentDto,
+  })
   @HttpCode(201)
   async create(
     @Body() paymentIntent: PaymentIntentDto,
@@ -25,8 +31,12 @@ export class PaymentIntentController {
   }
 
   @Get(':paymentIntentId')
-  @HttpCode(200)
   @UseGuards(PaymentIntentExistGuard)
+  @ApiOkResponse({
+    description: 'Payment intent retrieved',
+    type: PaymentIntentDto,
+  })
+  @HttpCode(200)
   getOne(
     @Param('paymentIntentId') paymentIntentId: string,
   ): Promise<PaymentIntentDto> {
@@ -34,8 +44,13 @@ export class PaymentIntentController {
   }
 
   @Put(':paymentIntentId')
-  @HttpCode(200)
   @UseGuards(PaymentIntentExistGuard)
+  @ApiBody({ type: PaymentIntentDto })
+  @ApiOkResponse({
+    description: 'Payment intent updated',
+    type: PaymentIntentDto,
+  })
+  @HttpCode(200)
   updateOne(
     @Param('paymentIntentId') paymentIntentId: string,
     @Body() paymentIntent: PaymentIntentDto,

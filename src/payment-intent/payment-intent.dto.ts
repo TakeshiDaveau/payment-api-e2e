@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   Allow,
   IsEnum,
@@ -30,32 +31,45 @@ export class PaymentIntentDto {
   @IsString()
   @IsOptional()
   @Allow()
+  @ApiProperty()
   id?: string;
 
   @IsEnum(PaymentIntentStatus)
   @Allow()
   @IsNotEmpty()
+  @ApiProperty({
+    enum: PaymentIntentStatus,
+  })
   status: PaymentIntentStatus;
 
   @Allow()
   @IsNotEmpty()
   @IsNumber()
   @IsPositive()
+  @ApiProperty()
   amount: number;
 
   @Allow()
   @IsEnum(Currency)
   @IsNotEmpty()
+  @ApiProperty({
+    enum: Currency,
+  })
   currency: Currency;
 
   @Allow()
   @IsEnum(PaymentMethod)
   @IsNotEmpty()
+  @ApiProperty({
+    enum: PaymentMethod,
+  })
   paymentMethod: PaymentMethod;
 
   @Allow()
   @IsOptional()
+  @ApiProperty()
   metadata?: Record<string, string>;
 
+  @ApiProperty()
   createdAt?: Timestamp;
 }

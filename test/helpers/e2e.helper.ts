@@ -37,41 +37,7 @@ export class E2eHelper {
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
 
-    console.log(
-      'modulesDefinition',
-      await E2eHelper.retrieveServiceNames(E2eHelper.modulesDefinition),
-    );
-
     return new E2eHelper(app, module);
-  }
-
-  /**
-   * Clean all the created data during E2E test.
-   *
-   * It retrieves all the Repository and clean the associated
-   * data
-   *
-   */
-  async cleanup(): Promise<void> {
-    const providers = await E2eHelper.retrieveServiceNames(
-      E2eHelper.modulesDefinition,
-    );
-    await Promise.all(
-      // Retrieve the provider
-      await (
-        await Promise.all(
-          providers.map((provider) => this.app.resolve(provider)),
-        )
-      )
-        // Execute deleteDataAfterTest if the methods exists
-        .map((resolvedProvider) =>
-          (
-            resolvedProvider as unknown as {
-              deleteDataAfterTest?: () => Promise<void>;
-            }
-          )?.deleteDataAfterTest(),
-        ),
-    );
   }
 
   /**
@@ -130,5 +96,34 @@ export class E2eHelper {
           .flat(),
       ),
     ];
+  }
+
+  /**
+   * Clean all the created data during E2E test.
+   *
+   * It retrieves all the Repository and clean the associated
+   * data
+   *
+   */
+  async cleanup(): Promise<void> {
+    const providers = await E2eHelper.retrieveServiceNames(
+      E2eHelper.modulesDefinition,
+    );
+    await Promise.all(
+      // Retrieve the provider
+      await (
+        await Promise.all(
+          providers.map((provider) => this.app.resolve(provider)),
+        )
+      )
+        // Execute deleteDataAfterTest if the methods exists
+        .map((resolvedProvider) =>
+          (
+            resolvedProvider as unknown as {
+              deleteDataAfterTest?: () => Promise<void>;
+            }
+          )?.deleteDataAfterTest(),
+        ),
+    );
   }
 }
