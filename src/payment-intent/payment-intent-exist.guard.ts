@@ -6,6 +6,10 @@ import {
 } from '@nestjs/common';
 import { PaymentIntentService } from './payment-intent.service';
 
+/**
+ * Guard to throw a not found exception when the payment intent
+ * given as param in url (:paymentIntentId) does not exist.
+ */
 @Injectable()
 export class PaymentIntentExistGuard implements CanActivate {
   constructor(private readonly paymentIntentService: PaymentIntentService) {}

@@ -1,7 +1,4 @@
-import { Test, TestingModule } from '@nestjs/testing';
-import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
-import { AppModule } from '../src/app.module';
 import {
   badRequestPaymentIntentFixture,
   paymentIntentFixture,
@@ -9,6 +6,7 @@ import {
 import { PaymentIntentService } from '../src/payment-intent/payment-intent.service';
 import { nanoid } from 'nanoid';
 import { PaymentIntentDto } from '../src/payment-intent/payment-intent.dto';
+import { E2eHelper } from './helpers/e2e.helper';
 
 describe('PaymentIntent (e2e)', () => {
   const baseUrl: Readonly<string> = 'payment_intent';
@@ -21,26 +19,20 @@ describe('PaymentIntent (e2e)', () => {
     status: paymentIntentFixture.status,
     amount: paymentIntentFixture.amount,
   };
+  let e2eHelper: E2eHelper;
   let paymentIntentService: PaymentIntentService;
-  let app: INestApplication;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
-      imports: [AppModule],
-    }).compile();
+    e2eHelper = await E2eHelper.createTestingModule();
 
-    app = moduleFixture.createNestApplication();
     paymentIntentService =
-      moduleFixture.get<PaymentIntentService>(PaymentIntentService);
-
-    await app.init();
+      e2eHelper.module.get<PaymentIntentService>(PaymentIntentService);
   });
 
   // Pas de données d'initialisations, mais pour un test plus réel pour
   // créer un payment intent il faudra probablement avoir :
   // - payment method
   // - customer
-
   afterAll(async () => {
     // On pourrait tout simplement supprimer la collection payment intent au complet.
     // J'utilise ici Firebase par simplicité, mais dans l'idée ce serait plutôt un Payment Service Provider
@@ -53,7 +45,7 @@ describe('PaymentIntent (e2e)', () => {
 
   describe('POST /payment_intent', () => {
     it('should create payment intent when request body is valid', async () => {
-      const { body } = await request(app.getHttpServer())
+      const { body } = await request(e2eHelper.app.getHttpServer())
         .post(`/${baseUrl}`)
         .send(paymentIntentFixture)
         .expect(201);
@@ -64,8 +56,8 @@ describe('PaymentIntent (e2e)', () => {
       paymentIntentIds.push(body.id);
     });
 
-    it('should return a 400 when request body contain not valid data', async () => {
-      return request(app.getHttpServer())
+    it('should return a 400 when request body contain invalid data', async () => {
+      return request(e2eHelper.app.getHttpServer())
         .post(`/${baseUrl}`)
         .send(badRequestPaymentIntentFixture)
         .expect(400)
@@ -93,7 +85,7 @@ describe('PaymentIntent (e2e)', () => {
     });
 
     it('should return the payment intent when it exists', async () => {
-      const { body } = await request(app.getHttpServer())
+      const { body } = await request(e2eHelper.app.getHttpServer())
         .get(`/${baseUrl}/${paymentIntentId}`)
         .expect(200);
 
@@ -101,7 +93,7 @@ describe('PaymentIntent (e2e)', () => {
     });
     it("should return a 404 when payment intent doesn't exist", () => {
       const id = nanoid();
-      return request(app.getHttpServer())
+      return request(e2eHelper.app.getHttpServer())
         .get(`/${baseUrl}/${id}`)
         .expect(404)
         .expect({
@@ -130,7 +122,7 @@ describe('PaymentIntent (e2e)', () => {
     });
 
     it('should return the payment intent when it exists and body is valid', async () => {
-      const { body } = await request(app.getHttpServer())
+      const { body } = await request(e2eHelper.app.getHttpServer())
         .put(`/${baseUrl}/${paymentIntentId}`)
         .send(paymentIntent)
         .expect(200);
@@ -140,7 +132,7 @@ describe('PaymentIntent (e2e)', () => {
     it("should return a 404 when payment intent doesn't exist", () => {
       const id = nanoid();
 
-      return request(app.getHttpServer())
+      return request(e2eHelper.app.getHttpServer())
         .put(`/${baseUrl}/${id}`)
         .send(paymentIntent)
         .expect(404)
@@ -150,8 +142,8 @@ describe('PaymentIntent (e2e)', () => {
           error: 'Not Found',
         });
     });
-    it('should return a 400 when request body contain not valid data', () => {
-      return request(app.getHttpServer())
+    it('should return a 400 when request body contain invalid data', () => {
+      return request(e2eHelper.app.getHttpServer())
         .put(`/${baseUrl}/${paymentIntentId}`)
         .send(badRequestPaymentIntentFixture)
         .expect(400)
@@ -168,7 +160,7 @@ describe('PaymentIntent (e2e)', () => {
         });
     });
     it('should return a 422 when payment intent id in body is different from the one in param', () => {
-      return request(app.getHttpServer())
+      return request(e2eHelper.app.getHttpServer())
         .put(`/${baseUrl}/${paymentIntentDifferentId}`)
         .send(paymentIntent)
         .expect(422)

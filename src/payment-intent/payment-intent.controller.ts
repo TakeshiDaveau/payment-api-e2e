@@ -7,19 +7,11 @@ import {
   Post,
   Put,
   UseGuards,
-  UsePipes,
-  ValidationPipe,
 } from '@nestjs/common';
 import { PaymentIntentExistGuard } from './payment-intent-exist.guard';
 import { PaymentIntentDto } from './payment-intent.dto';
 import { PaymentIntentService } from './payment-intent.service';
 
-@UsePipes(
-  new ValidationPipe({
-    forbidNonWhitelisted: true,
-    transform: true,
-  }),
-)
 @Controller('payment_intent')
 export class PaymentIntentController {
   constructor(private readonly paymentIntentService: PaymentIntentService) {}

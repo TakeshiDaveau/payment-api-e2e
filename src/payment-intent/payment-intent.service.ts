@@ -9,6 +9,7 @@ export class PaymentIntentService {
   constructor(@InjectFirebaseAdmin() private readonly firebase: FirebaseAdmin) {
     this.#collection = firebase.db.collection('payment-intent');
   }
+
   async getOne(paymentIntentId: string): Promise<PaymentIntentDto | undefined> {
     const ref = this.#getOneRef(paymentIntentId);
     const doc = await ref.get();
