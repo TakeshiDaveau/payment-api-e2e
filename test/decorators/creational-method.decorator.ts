@@ -1,5 +1,3 @@
-import { InMemoryHelper } from '../helpers/in-memory.helper';
-
 const getId = (
   result: unknown & { id?: string; _id?: string },
   idPath: string,
@@ -17,7 +15,7 @@ const getId = (
  * /!\ This is a typescript decorator not a NestJS
  *
  * This decorator will store the result of the method
- * in the InMemoryHelper hich will be used in test deletion
+ * in the InMemoryHelper which will be used in test deletion
  * method.
  *
  * @example
@@ -27,9 +25,9 @@ const getId = (
  * @param idPath
  * @returns
  */
-export const creationalMethod = (idPath: string) => {
+export const creationalMethod = (idPath = 'id') => {
   return (
-    target: Object,
+    target: unknown,
     propertyKey: string,
     descriptor: PropertyDescriptor,
   ) => {
