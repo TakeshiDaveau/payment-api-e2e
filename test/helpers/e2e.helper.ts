@@ -1,4 +1,8 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common';
+import {
+  DynamicModule,
+  INestApplication,
+  ValidationPipe,
+} from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 
@@ -79,7 +83,7 @@ export class E2eHelper {
    */
   private static async retrieveServiceNames(
     modulesDefinition: ModuleDefinition[],
-  ): Promise<string[]> {
+  ): Promise<symbol[]> {
     // Importing modules is required to inspect his providers
     const modules = await Promise.all(
       modulesDefinition.map(({ path }) => import(path)),
@@ -91,8 +95,6 @@ export class E2eHelper {
           .map((module) =>
             Reflect.getMetadata('providers', module[Object.keys(module)[0]]),
           )
-          .flat()
-          .map(({ name }) => name)
           .flat(),
       ),
     ];
@@ -109,21 +111,22 @@ export class E2eHelper {
     const providers = await E2eHelper.retrieveServiceNames(
       E2eHelper.modulesDefinition,
     );
+    // Retrueve
+    const resolvedProviders: Array<{
+      deleteDataAfterTest?: () => Promise<void>;
+    }> = await Promise.all(
+      providers.map((provider) => this.app.resolve(provider)),
+    );
     await Promise.all(
       // Retrieve the provider
-      await (
-        await Promise.all(
-          providers.map((provider) => this.app.resolve(provider)),
-        )
-      )
+      await resolvedProviders
         // Execute deleteDataAfterTest if the methods exists
-        .map((resolvedProvider) =>
-          (
-            resolvedProvider as unknown as {
-              deleteDataAfterTest?: () => Promise<void>;
-            }
-          )?.deleteDataAfterTest(),
-        ),
+        .map((resolvedProvider) => {
+          if (resolvedProvider?.deleteDataAfterTest instanceof Function) {
+            return resolvedProvider?.deleteDataAfterTest();
+          }
+          return Promise.resolve();
+        }),
     );
   }
 }

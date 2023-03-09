@@ -36,11 +36,12 @@ describe('PaymentIntent (e2e)', () => {
   afterAll(async () => {
     // On pourrait tout simplement supprimer la collection payment intent au complet.
     // J'utilise ici Firebase par simplicité, mais dans l'idée ce serait plutôt un Payment Service Provider
-    await Promise.all(
-      paymentIntentIds.map((paymentIntentId) =>
-        paymentIntentService.deleteOne(paymentIntentId),
-      ),
-    );
+    // await Promise.all(
+    //   paymentIntentIds.map((paymentIntentId) =>
+    //     paymentIntentService.deleteOne(paymentIntentId),
+    //   ),
+    // );
+    await e2eHelper.cleanup();
   });
 
   describe('POST /payment_intent', () => {
