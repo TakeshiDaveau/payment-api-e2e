@@ -29,18 +29,7 @@ describe('PaymentIntent (e2e)', () => {
       e2eHelper.module.get<PaymentIntentService>(PaymentIntentService);
   });
 
-  // Pas de données d'initialisations, mais pour un test plus réel pour
-  // créer un payment intent il faudra probablement avoir :
-  // - payment method
-  // - customer
   afterAll(async () => {
-    // On pourrait tout simplement supprimer la collection payment intent au complet.
-    // J'utilise ici Firebase par simplicité, mais dans l'idée ce serait plutôt un Payment Service Provider
-    // await Promise.all(
-    //   paymentIntentIds.map((paymentIntentId) =>
-    //     paymentIntentService.deleteOne(paymentIntentId),
-    //   ),
-    // );
     await e2eHelper.cleanup();
   });
 
