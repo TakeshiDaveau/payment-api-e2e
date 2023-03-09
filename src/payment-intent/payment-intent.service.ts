@@ -11,14 +11,14 @@ export class PaymentIntentService {
   }
 
   async getOne(paymentIntentId: string): Promise<PaymentIntentDto | undefined> {
-    const ref = this.#getOneRef(paymentIntentId);
+    const ref = this.getOneRef(paymentIntentId);
     const doc = await ref.get();
     return doc.exists ? doc.data() : undefined;
   }
 
   async create(paymentIntent: PaymentIntentDto): Promise<PaymentIntentDto> {
     const paymentIntentId = `pay_intent_${nanoid()}`;
-    await this.#getOneRef(paymentIntentId).set({
+    await this.getOneRef(paymentIntentId).set({
       ...paymentIntent,
       id: paymentIntentId,
       createdAt: Date.now(),
@@ -35,17 +35,17 @@ export class PaymentIntentService {
         `Payment intent id (${paymentIntentId}) is different from the id in payment intent data (${paymentIntent.id})`,
       );
     }
-    const ref = this.#getOneRef(paymentIntentId);
+    const ref = this.getOneRef(paymentIntentId);
     await ref.update({ ...paymentIntent });
     return this.getOne(paymentIntentId);
+  }
+
+  private getOneRef(paymentIntentId: string) {
+    return this.#collection.doc(`${paymentIntentId}`);
   }
 
   // Do not use this method as it's not authorized to remove a PaymentIntent
   async deleteOne(paymentIntentId: string): Promise<void> {
     await this.#collection.doc(`${paymentIntentId}`).delete();
-  }
-
-  #getOneRef(paymentIntentId: string) {
-    return this.#collection.doc(`${paymentIntentId}`);
   }
 }
