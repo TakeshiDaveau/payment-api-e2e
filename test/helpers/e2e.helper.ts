@@ -1,11 +1,5 @@
-/* eslint-disable no-console */
-import {
-  INestApplication,
-  ModuleMetadata,
-  ValidationPipe,
-} from '@nestjs/common';
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
-import { PaymentIntentService } from '../../src/payment-intent/payment-intent.service';
 import { AppModule } from '../../src/app.module';
 
 type ModuleDefinition = { path: string; fileName: string };
@@ -42,6 +36,12 @@ export class E2eHelper {
     const app = module.createNestApplication();
     app.useGlobalPipes(new ValidationPipe());
     await app.init();
+
+    console.log(
+      'modulesDefinition',
+      await E2eHelper.retrieveServiceNames(E2eHelper.modulesDefinition),
+    );
+
     return new E2eHelper(app, module);
   }
 
@@ -53,22 +53,35 @@ export class E2eHelper {
    *
    */
   async cleanup(): Promise<void> {
-    const repositories = await E2eHelper.retrieveServiceNames(
+    const providers = await E2eHelper.retrieveServiceNames(
       E2eHelper.modulesDefinition,
     );
     await Promise.all(
+      // Retrieve the provider
       await (
         await Promise.all(
-          repositories.map((repository) => this.app.resolve(repository)),
+          providers.map((provider) => this.app.resolve(provider)),
         )
-      ).map((resolvedRepository) =>
-        (resolvedRepository as any)?.deleteDataAfterTest(),
-      ),
+      )
+        // Execute deleteDataAfterTest if the methods exists
+        .map((resolvedProvider) =>
+          (
+            resolvedProvider as unknown as {
+              deleteDataAfterTest?: () => Promise<void>;
+            }
+          )?.deleteDataAfterTest(),
+        ),
     );
   }
 
   /**
-   * Retrieve the list of module imported
+   * Retrieve the list of module imported. Here is an example of return
+   * [
+   *   {
+   *     path: '/Users/me/meetup/15032023_meetup/payment-api/src/payment-intent/payment-intent.module.ts',
+   *     fileName: 'payment-intent'
+   *   }
+   * ]
    *
    * @returns the path and the base filename of all module imported within AppModule
    */
