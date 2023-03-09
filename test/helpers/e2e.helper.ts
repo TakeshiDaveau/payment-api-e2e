@@ -1,8 +1,5 @@
-import {
-  DynamicModule,
-  INestApplication,
-  ValidationPipe,
-} from '@nestjs/common';
+/* eslint-disable no-console */
+import { INestApplication, ValidationPipe } from '@nestjs/common';
 import { Test, TestingModule } from '@nestjs/testing';
 import { AppModule } from '../../src/app.module';
 
