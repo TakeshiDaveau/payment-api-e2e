@@ -2,8 +2,13 @@ import { Injectable, UnprocessableEntityException } from '@nestjs/common';
 import { FirebaseAdmin, InjectFirebaseAdmin } from 'nestjs-firebase';
 import { PaymentIntentDto } from './payment-intent.dto';
 import { nanoid } from 'nanoid';
+import { onlyForTestE2E } from '../../test/decorators/only-for-test-e2e.decorator';
+import { creationalMethod } from '../../test/decorators/creational-method.decorator';
+import { InMemoryHelper } from '../../test/helpers/in-memory.helper';
+import { cleanableProvider } from '../../test/decorators/cleanable-provider.decorator';
 
 @Injectable()
+@cleanableProvider
 export class PaymentIntentService {
   #collection: { doc: (string) => any; add: (any) => any };
   constructor(@InjectFirebaseAdmin() private readonly firebase: FirebaseAdmin) {
@@ -16,6 +21,7 @@ export class PaymentIntentService {
     return doc.exists ? doc.data() : undefined;
   }
 
+  @creationalMethod('id')
   async create(paymentIntent: PaymentIntentDto): Promise<PaymentIntentDto> {
     const paymentIntentId = `pay_intent_${nanoid()}`;
     await this.getOneRef(paymentIntentId).set({
@@ -44,8 +50,21 @@ export class PaymentIntentService {
     return this.#collection.doc(`${paymentIntentId}`);
   }
 
-  // Do not use this method as it's not authorized to remove a PaymentIntent
-  async deleteOne(paymentIntentId: string): Promise<void> {
+  // Only for E2E test
+  @onlyForTestE2E
+  private async deleteOne(paymentIntentId: string): Promise<void> {
     await this.#collection.doc(`${paymentIntentId}`).delete();
+  }
+
+  @onlyForTestE2E
+  public async deleteDataAfterTest(): Promise<void> {
+    console.log(
+      InMemoryHelper.getInstance().getAllIdByType('PaymentIntentService'),
+    );
+    await Promise.all(
+      InMemoryHelper.getInstance()
+        .getAllIdByType('PaymentIntentService')
+        .map((id) => this.deleteOne(id)),
+    );
   }
 }
