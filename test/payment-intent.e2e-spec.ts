@@ -36,12 +36,11 @@ describe('PaymentIntent (e2e)', () => {
   afterAll(async () => {
     // On pourrait tout simplement supprimer la collection payment intent au complet.
     // J'utilise ici Firebase par simplicité, mais dans l'idée ce serait plutôt un Payment Service Provider
-    // await Promise.all(
-    //   paymentIntentIds.map((paymentIntentId) =>
-    //     paymentIntentService.deleteOne(paymentIntentId),
-    //   ),
-    // );
-    await e2eHelper.cleanup();
+    await Promise.all(
+      paymentIntentIds.map((paymentIntentId) =>
+        paymentIntentService.deleteOne(paymentIntentId),
+      ),
+    );
   });
 
   describe('POST /payment_intent', () => {
@@ -53,7 +52,7 @@ describe('PaymentIntent (e2e)', () => {
 
       expect(body).toEqual(paymentIntentExpected);
 
-      // Pas utile dans le test
+      // TODO delete after cleanup use
       paymentIntentIds.push(body.id);
     });
 
@@ -82,6 +81,7 @@ describe('PaymentIntent (e2e)', () => {
     beforeAll(async () => {
       const result = await paymentIntentService.create(paymentIntentFixture);
       paymentIntentId = result.id;
+      // TODO delete after cleanup use
       paymentIntentIds.push(paymentIntentId);
     });
 
@@ -113,12 +113,14 @@ describe('PaymentIntent (e2e)', () => {
     beforeAll(async () => {
       const result = await paymentIntentService.create(paymentIntentFixture);
       paymentIntentId = result.id;
+      // TODO delete after cleanup use
       paymentIntentIds.push(paymentIntentId);
 
       paymentIntent = { ...paymentIntentFixture, id: paymentIntentId };
 
       const { id } = await paymentIntentService.create(paymentIntentFixture);
       paymentIntentDifferentId = id;
+      // TODO delete after cleanup use
       paymentIntentIds.push(paymentIntentDifferentId);
     });
 
