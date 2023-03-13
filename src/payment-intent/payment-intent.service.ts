@@ -58,9 +58,6 @@ export class PaymentIntentService {
 
   @onlyForTestE2E
   public async deleteDataAfterTest(): Promise<void> {
-    console.log(
-      InMemoryHelper.getInstance().getAllIdByType('PaymentIntentService'),
-    );
     await Promise.all(
       InMemoryHelper.getInstance()
         .getAllIdByType('PaymentIntentService')
