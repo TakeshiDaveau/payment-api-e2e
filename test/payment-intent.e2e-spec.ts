@@ -10,7 +10,6 @@ import { E2eHelper } from './helpers/e2e.helper';
 
 describe('PaymentIntent (e2e)', () => {
   const baseUrl: Readonly<string> = 'payment_intent';
-  const paymentIntentIds: string[] = [];
   const paymentIntentExpected: PaymentIntentDto = {
     paymentMethod: paymentIntentFixture.paymentMethod,
     currency: paymentIntentFixture.currency,
@@ -41,9 +40,6 @@ describe('PaymentIntent (e2e)', () => {
         .expect(201);
 
       expect(body).toEqual(paymentIntentExpected);
-
-      // Pas utile dans le test
-      paymentIntentIds.push(body.id);
     });
 
     it('should return a 400 when request body contain invalid data', async () => {
@@ -71,7 +67,6 @@ describe('PaymentIntent (e2e)', () => {
     beforeAll(async () => {
       const result = await paymentIntentService.create(paymentIntentFixture);
       paymentIntentId = result.id;
-      paymentIntentIds.push(paymentIntentId);
     });
 
     it('should return the payment intent when it exists', async () => {
@@ -102,13 +97,11 @@ describe('PaymentIntent (e2e)', () => {
     beforeAll(async () => {
       const result = await paymentIntentService.create(paymentIntentFixture);
       paymentIntentId = result.id;
-      paymentIntentIds.push(paymentIntentId);
 
       paymentIntent = { ...paymentIntentFixture, id: paymentIntentId };
 
       const { id } = await paymentIntentService.create(paymentIntentFixture);
       paymentIntentDifferentId = id;
-      paymentIntentIds.push(paymentIntentDifferentId);
     });
 
     it('should return the payment intent when it exists and body is valid', async () => {
