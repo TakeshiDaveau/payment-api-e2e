@@ -25,11 +25,12 @@ export const onlyForTestE2E = (
         `Method ${propertyKey} with the @onlyForTestE2E must not be called outside E2E testing`,
       );
     };
-  } else {
-    descriptor.value = function () {
-      throw new Error(
-        `Method ${propertyKey} with the @onlyForTestE2E must not be called outside E2E testing`,
-      );
-    };
+    return;
   }
+
+  descriptor.value = function () {
+    throw new Error(
+      `Method ${propertyKey} with the @onlyForTestE2E must not be called outside E2E testing`,
+    );
+  };
 };

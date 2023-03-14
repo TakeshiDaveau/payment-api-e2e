@@ -49,16 +49,17 @@ export const creationalMethod = (idPath = 'id') => {
         );
         return result;
       };
-    } else {
-      descriptor.value = function (...args) {
-        const result = originalMethod.apply(this, args);
-        InMemoryHelper.getInstance().setValue(
-          this.type,
-          getId(result, idPath),
-          result,
-        );
-        return result;
-      };
+      return;
     }
+
+    descriptor.value = function (...args) {
+      const result = originalMethod.apply(this, args);
+      InMemoryHelper.getInstance().setValue(
+        this.type,
+        getId(result, idPath),
+        result,
+      );
+      return result;
+    };
   };
 };
