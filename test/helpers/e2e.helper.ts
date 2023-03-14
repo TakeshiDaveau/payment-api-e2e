@@ -114,12 +114,6 @@ export class E2eHelper {
     }> = await Promise.all(
       providers.map((provider) => this.app.resolve(provider)),
     );
-    console.log(`Bellow the list of modules`);
-    console.log(E2eHelper.modulesDefinition);
-    console.log(`Bellow the list of providers`);
-    console.log(providers);
-    console.log(`Bellow the list of resolved providers`);
-    console.log(resolvedProviders);
     await Promise.all(
       // Retrieve the provider
       await resolvedProviders
